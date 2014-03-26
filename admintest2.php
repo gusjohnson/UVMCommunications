@@ -327,7 +327,7 @@ $selection = $_POST["decide"];
 <meta name="viewport" content="width=device-width">
 <link rel="stylesheet" href="desktop.css" />
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+<script src="jquery-2.1.0.min.js">
 </script>
 <script>
 $(document).ready(function(){
@@ -360,12 +360,13 @@ $(document).ready(function(){
     <div id="decision">
             <fieldset>
                 <legend>I Want To...</legend>
-                <label><input type="radio" name="decide" id="addRadio" <?php //if (isset($selection) && $selection=="add") echo "checked";?> value="add">Add a Link/Category/Association</label><br />
-                <label><input type="radio" name="decide" id="editRadio" <?php //if (isset($selection) && $selection=="edit") echo "checked";?>value="edit">Edit an Existing Link</label><br />
-                <label><input type="radio" name="decide" id="deleteRadio" <?php //if (isset($selection) && $selection=="delete") echo "checked";?>value="delete">Delete an Existing Link</label><br />
+                <button id="addRadio">Add a Link/Category/Association</button><br />
+                <button id="editRadio">Edit an Existing Link</button><br />
+                <button id="deleteRadio">Delete an Existing Link</button><br />
             <!--<input type="submit" name ="madeSelection" value="Submit">-->
             </fieldset>
     </div>
+    <br />
     
 <?php 
 
@@ -374,7 +375,6 @@ $(document).ready(function(){
 ?>
     <div id="edit"> 
     <h1><? echo $BIG_RED_ERROR_MESSAGE ?></h1>
-<br />
 <h2><a href="admin_help.html" target="_blank">Help!</a></h2>
 
 <table width="100%" border="1">
