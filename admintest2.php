@@ -104,6 +104,11 @@ if(isset($insert) ) {
 		$latest_entry_result = mysqli_query($db, "select last_insert_id()");
 		$latest_entry = mysqli_fetch_array($latest_entry_result);
 		$current = $latest_entry[0];
+                
+                $insert_firstLongName = "INSERT into $NAME_TABLE (URL_ID, LongName) values (". $current .", '".
+			    mysqli_real_escape_string($db, $insert_longname1)."')";
+	        $insert_firstLongName_result = mysqli_query($db, $insert_firstLongName);
+                
 	}
 	else
 	{
@@ -111,6 +116,9 @@ if(isset($insert) ) {
 		$current = $current[0];
 		$BIG_RED_ERROR_MESSAGE = "URL ALREADY EXISTS!!!<img src=\"angry_face.png\" />";
 	}
+
+	$insert_long_assoc = "insert into $NAME_URL_TABLE values (".mysqli_real_escape_string($db, $current).", last_insert_id())";
+	mysqli_query($db, $insert_long_assoc);
 }
 
 //UPDATE URL    receives: update_id, update_shortname, update_url, update_owneremail
@@ -331,22 +339,31 @@ $selection = $_POST["decide"];
 </script>
 <script>
 $(document).ready(function(){
-  $("#addRadio").click(function(){
+    $("#add").hide();
+    $("#edit").hide();
+    $("#delete").hide();
+  
+  $("#addButton").click(function(){
         $("#add").show();
         $("#edit").hide();
         $("#delete").hide();
     });
     
-  $("#editRadio").click(function(){
-        $("#add").hide();
+  $("#editButton").click(function(){
         $("#edit").show();
+        $("#add").hide();
         $("#delete").hide();
     }); 
     
-  $("#deleteRadio").click(function(){
+  $("#deleteButton").click(function(){
+        $("#delete").show();
         $("#add").hide();
         $("#edit").hide();
-        $("#delete").show();
+    });
+    
+  $('button[type="submit"]').click(function(){
+        //add functions to keep form up after button clicks
+    
     });
 });
 </script>
@@ -360,19 +377,13 @@ $(document).ready(function(){
     <div id="decision">
             <fieldset>
                 <legend>I Want To...</legend>
-                <button id="addRadio">Add a Link/Category/Association</button><br />
-                <button id="editRadio">Edit an Existing Link</button><br />
-                <button id="deleteRadio">Delete an Existing Link</button><br />
-            <!--<input type="submit" name ="madeSelection" value="Submit">-->
+                <button id="addButton">Add a New Link or Category</button><br />
+                <button id="editButton">Manage an Existing Link and its Associations</button><br />
+                <button id="deleteButton">Delete an Existing Link</button><br />
             </fieldset>
     </div>
     <br />
-    
-<?php 
 
-//if ((isset($_POST["madeSelection"]) && ($selection=="edit")) || isset($_POST["findForm"])) { 
-
-?>
     <div id="edit"> 
     <h1><? echo $BIG_RED_ERROR_MESSAGE ?></h1>
 <h2><a href="admin_help.html" target="_blank">Help!</a></h2>
@@ -573,106 +584,8 @@ if($current == $highest)
 		</form>
         </div>
         
-        <div class="column1" valign="top">
-	<h3 id="yellow">Remove Association</h3>
-		<form name="frm_dis" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
-			<label>Category -> Long Name
-				<br />
-			<select name="del_ass_id" size="5"  class="input-select">
-			<?
-				//Gets a list of long names, finds the associated categories with each long name
-
-				$select_default_longnames = "select nameindex, LongName from $NAME_TABLE where URL_ID = $current";
-
-				$result_default_longnames = mysqli_query($db, $select_default_longnames);
-
-
-				while( list($nameindex, $LongName) = mysqli_fetch_row($result_default_longnames) ) {
-					$select_default_longcat = "select $CATEGORY_TABLE.ID, $CATEGORY_TABLE.Category from $CATEGORY_TABLE, $NAME_CAT_TABLE WHERE $NAME_CAT_TABLE.nameindex = $nameindex AND $CATEGORY_TABLE.ID = $NAME_CAT_TABLE.catindex";
-					$result_default_longcat = mysqli_query($db, $select_default_longcat);
-
-					while( list($ID, $Category) = mysqli_fetch_row($result_default_longcat) ) {
-						echo "<option value=\"$ID*$nameindex\" >$Category -> $LongName</option>\n";
-					}
-				}
-
-			?>
-			</select>	
-			</label>
-				<br />
-			<?
-				hidden_elements('del_ass', $current);
-			?>
-				<br />
-			<input type="submit" value="Remove" class="input-button">
-		</form>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="column1">
-        <h3 id="yellow">Rename Category</h3>
-		<form name="frm_update_cat" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
-			<label>Category: 
-				<br />
-			<select name="update_cat_id" class="input-select">
-			<?
-				$select_all_categories = "select distinct $CATEGORY_TABLE.ID, $CATEGORY_TABLE.Category from $CATEGORY_TABLE ORDER BY Category";
-				$result_all_categories = mysqli_query($db, $select_all_categories);
-
-				// A-Z is protected... wouldn't want to accidentally delete it.
-				while(list($ID, $Category) = mysqli_fetch_row($result_all_categories) ) {
-					if($Category != "A-Z")  
-						echo "<option value=\"$ID\"> $Category</option>\n";
-				}
-
-			?>
-			</select>
-			</label>
-
-			<br />
-
-			<label>New Name:
-                            <br /><input type="text" name="update_cat_name" class="input-text"></label> 
-			<?
-				hidden_elements('update_cat', $current);
-			?>
-				<br />
-                                <br />
-			<input type="submit" value="Rename" class="input-button">
-		</form>
-        </div>
-    </div>
-</div>
-    </div>
-  
-
-	<?
-        //}
-        //if (isset($_POST["madeSelection"]) && ($selection=="add")){
-            ?>    
-    <div id="add">
-    <div class="columns">    
-    <div class="row">
-        <div class="column1">
-	<h3 id="green">Insert New URL</h3>
-		<form name="frm_insert" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post">
-
-			<label>Short Name<br /><input type="text" name="insert_shortname" value="" ></label>
-				<br />
-			<label>URL<br /><input type="text" name="insert_url" value="" ></label>
-				<br />
-			<label>Owner Email<br /><input type="text" name="insert_owneremail" value="" ></label>
-				<br />
-			<?
-				hidden_elements('insert', $current);
-			?>
-			<br />
-                        <input type="submit" value="Insert" >
-		</form>
-  </div>
-            <div class="column1"> 
-        <h3 id="green">Add Association</h3>
+        <div class="column1"> 
+        <h3 id="yellow">Add Association</h3>
 		<form name="frm_ass" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
 			<label>Long Name: 
 					<br />
@@ -710,8 +623,101 @@ if($current == $highest)
 			<input type="submit" value="Associate" class="input-button">
 		</form>
             </div>
+    </div>
+        
+        <div class="row">
+        <div class="column1" valign="top">
+	<h3 id="yellow">Remove Association</h3>
+		<form name="frm_dis" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
+			<label>Category -> Long Name
+				<br />
+			<select name="del_ass_id" size="5"  class="input-select">
+			<?
+				//Gets a list of long names, finds the associated categories with each long name
+
+				$select_default_longnames = "select nameindex, LongName from $NAME_TABLE where URL_ID = $current";
+
+				$result_default_longnames = mysqli_query($db, $select_default_longnames);
+
+
+				while( list($nameindex, $LongName) = mysqli_fetch_row($result_default_longnames) ) {
+					$select_default_longcat = "select $CATEGORY_TABLE.ID, $CATEGORY_TABLE.Category from $CATEGORY_TABLE, $NAME_CAT_TABLE WHERE $NAME_CAT_TABLE.nameindex = $nameindex AND $CATEGORY_TABLE.ID = $NAME_CAT_TABLE.catindex";
+					$result_default_longcat = mysqli_query($db, $select_default_longcat);
+
+					while( list($ID, $Category) = mysqli_fetch_row($result_default_longcat) ) {
+						echo "<option value=\"$ID*$nameindex\" >$Category -> $LongName</option>\n";
+					}
+				}
+
+			?>
+			</select>	
+			</label>
+				<br />
+			<?
+				hidden_elements('del_ass', $current);
+			?>
+				<br />
+			<input type="submit" value="Remove" class="input-button">
+		</form>
         </div>
-        <div class="row">    
+        <div class="column1">
+        <h3 id="yellow">Rename Category</h3>
+		<form name="frm_update_cat" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
+			<label>Category: 
+				<br />
+			<select name="update_cat_id" class="input-select">
+			<?
+				$select_all_categories = "select distinct $CATEGORY_TABLE.ID, $CATEGORY_TABLE.Category from $CATEGORY_TABLE ORDER BY Category";
+				$result_all_categories = mysqli_query($db, $select_all_categories);
+
+				// A-Z is protected... wouldn't want to accidentally delete it.
+				while(list($ID, $Category) = mysqli_fetch_row($result_all_categories) ) {
+					if($Category != "A-Z")  
+						echo "<option value=\"$ID\"> $Category</option>\n";
+				}
+
+			?>
+			</select>
+			</label>
+
+			<br />
+
+			<label>New Name:
+                            <br /><input type="text" name="update_cat_name" class="input-text"></label> 
+			<?
+				hidden_elements('update_cat', $current);
+			?>
+				<br />
+                                <br />
+			<input type="submit" value="Rename" class="input-button">
+		</form>
+        </div>
+    </div>
+</div>
+</div>
+      
+    <div id="add">
+    <div class="columns">    
+    <div class="row">
+        <div class="column1">
+	<h3 id="green">Insert New URL</h3>
+		<form name="frm_insert" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post">
+
+			<label>Short Name<br /><input type="text" name="insert_shortname" value="" ></label>
+				<br />
+                        <label>Long Name<br /><input type="test" name="insert_longname1" value="" ></label>
+                                <br />
+			<label>URL<br /><input type="text" name="insert_url" value="" ></label>
+				<br />
+			<label>Owner Email<br /><input type="text" name="insert_owneremail" value="" ></label>
+				<br />
+			<?
+				hidden_elements('insert', $current);
+			?>
+			<br />
+                        <input id="insertNew" type="submit" value="Insert" >
+		</form>
+        </div>   
         <div class="column1">
 	<h3 id="green">New Category</h3>
 		<h6>Use the / (forward slash) character in place of spaces!</h6>
@@ -724,17 +730,13 @@ if($current == $highest)
 			?>
 				<br />
                                 <br />
-			<input type="submit" value="Create" class="input-button">
+			<input id="newCat" type="submit" value="Create" class="input-button">
 		</form>
-                </div>
-            </div>
-</div>
+         </div>
     </div>
+    </div>
+</div>
                 
-    <?
-    //}
-    //if (isset($_POST["madeSelection"]) && ($selection == "delete")) {
-        ?> 
     <div id="delete">
     <div class="columns">
         <div class="row">
@@ -797,7 +799,6 @@ if($current == $highest)
 </div>
 </div>
     </div>
-    <? //} ?>
 
 </body>
 
