@@ -1,0 +1,16 @@
+h1 { color: red; }
+label { font-size: 10pt; }
+#border { border-bottom: groove black; border-left: groove black; }
+#right { border-left: groove black; }
+#red { color: red; background-color: silver; }
+#yellow { color: yellow; background-color: gray; }
+#green { color: green; background-color: silver; }
+
+body {width: 100%; margin: auto;}
+h3 { font-size: 20pt;}
+#columns {display: block; width: 100%;}
+.column1 {display: block; width: 100%; font-size: 20px; line-height: 130%;}
+label {font-size: 20pt;}
+input.input-text {width: 75%; font-size: 50px; height: 80px;}
+input.input-button {width: 40%; height: 40px; font-size: 30px;}
+/*select.input-select {width: 75%; font-size: 30px; height: 50px;}*/

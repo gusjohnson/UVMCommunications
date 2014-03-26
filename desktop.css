@@ -1,0 +1,70 @@
+/*@media screen and (max-device-width: 900px){
+h1 { color: red; }
+label { font-size: 10pt; }
+#border { border-bottom: groove black; border-left: groove black; }
+#right { border-left: groove black; }
+#red { color: red; background-color: silver; }
+#yellow { color: yellow; background-color: gray; }
+#green { color: green; background-color: silver; }
+
+body {width: 100%; margin: auto;}
+h3 { font-size: 20pt;}
+#columns {display: block; width: 100%;}
+.column1 {display: block; width: 100%; font-size: 20px; line-height: 130%;}
+label {font-size: 24pt;}
+input.input-text {width: 75%; font-size: 75%; height: 8%;}
+input.input-button {width: 40%; height: 10%; font-size: 30px;}
+}*/
+
+@media screen and (max-width: 688px){
+h1 { color: red; }
+label { font-size: 10pt; }
+#border { border-bottom: groove black; border-left: groove black; }
+#right { border-left: groove black; }
+#red { color: red; background-color: silver; }
+#yellow { color: yellow; background-color: gray; }
+#green { color: green; background-color: silver; }
+
+body {width: 100%; margin: auto;}
+h3 { font-size: 20pt;}
+.columns {display: block; width: 100%;}
+.column1 {display: block; width: 100%; font-size: 20px; line-height: 130%;}
+label {font-size: 24pt;}
+input.input-text {width: 75%; font-size: 75%; height: 8%;}
+input.input-button {width: 40%; height: 10%; font-size: 100%;}
+}
+
+@media screen and (min-width: 689px) and (max-width: 1376px) {
+h1 { color: red; }
+label { font-size: 10pt; }
+#border { border-bottom: groove black; border-left: groove black; }
+#right { border-left: groove black; }
+#red { color: red; background-color: silver; }
+#yellow { color: yellow; background-color: gray; }
+#green { color: green; background-color: silver; }
+
+body {width: 75%; margin: auto;}
+h3 { font-size: 12pt;}
+.columns {display: block; margin-left: auto; margin-right: auto;}
+.column1 {display: block; width: 100%; font-size: 20px; border-style:solid; border-width: 1px;}
+label {font-size: 10pt;}
+}
+
+@media screen and (min-width: 1377px) {
+body {width: 75%; margin: auto;}
+h3 { font-size: 12pt; }
+h1 { color: red; }
+label { font-size: 10pt; }
+#border { border-bottom: groove black; border-left: groove black; }
+#right { border-left: groove black; }
+#red { color: red; background-color: silver; }
+#yellow { color: yellow; background-color: gray; }
+#green { color: green; background-color: silver; }
+#edit {display: none;}
+#add {display: none;}
+#delete {display: none;}
+
+.columns {display: table; width: 100%; vertical-align: middle;}
+.row {display: table-row; width: 100%;}
+.column1 {display: table-cell; width: 50%; border-style:solid; border-width: 1px;}
+}
