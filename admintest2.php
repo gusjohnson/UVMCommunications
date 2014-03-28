@@ -184,12 +184,12 @@ if(isset($del_cat) ) {
 
 //DELETE URL        receives: del_url_id
 if(isset($del_url) ) {
-	$remove_url = "delete from $URL_TABLE where ID = ".mysqli_real_escape_string($db, $del_url_id);
+	$remove_url = "delete from $URL_TABLE where ID = ".mysqli_real_escape_string($db, $del_url_select);
 	$remove_url_result = mysqli_query($db, $remove_url);
 
 	//get all the rows that will be deleted, then axe the associations. I think there was a neat query to do this without a loop, except it wasn't neat. Not at all.
-	$select_longnames = "select nameindex from $NAME_TABLE where URL_ID = ".mysqli_real_escape_string($db, $del_url_id);
-	$longname_list = mysqli_query($db, $select_longnames);
+	$select_longnames = "select nameindex from $NAME_TABLE where URL_ID = ".mysqli_real_escape_string($db, $del_url_select);
+	$longname_list = mysqli_query($db, $select_longnames); 
 
 	while(list($name) = mysqli_fetch_row($longname_list) ) {
 		$remove_name_cat = "delete from $NAME_CAT_TABLE where nameindex = $name";
@@ -325,6 +325,11 @@ $result_default_longnames = mysqli_query($db, $select_default_longnames);
 $selection = "";
 $selection = $_POST["decide"];
 
+$formFlag = false;
+if ($_SERVER["HTTP_REFERER"] == "http://www.uvm.edu/~gjohnso4/cs148/admintest2.php"){
+    $formFlag = true;
+}
+
 ?>
 <html>
 
@@ -339,9 +344,6 @@ $selection = $_POST["decide"];
 </script>
 <script>
 $(document).ready(function(){
-    $("#add").hide();
-    $("#edit").hide();
-    $("#delete").hide();
   
   $("#addButton").click(function(){
         $("#add").show();
@@ -361,17 +363,19 @@ $(document).ready(function(){
         $("#edit").hide();
     });
     
-  $('button[type="submit"]').click(function(){
-        //add functions to keep form up after button clicks
-    
-    });
+  if ($("#fullBody").hasClass("secondLoad")){
+        $("#delete").hide();
+        $("#add").hide();
+        $("#edit").show();
+  }
+  
 });
 </script>
 
 
 </head>
 
-<body>
+<body id="fullBody" <?php if ($formFlag == true) { echo "class='secondLoad'"; } ?>>
     <br />
 
     <div id="decision">
@@ -379,12 +383,12 @@ $(document).ready(function(){
                 <legend>I Want To...</legend>
                 <button id="addButton">Add a New Link or Category</button><br />
                 <button id="editButton">Manage an Existing Link and its Associations</button><br />
-                <button id="deleteButton">Delete an Existing Link</button><br />
+                <button id="deleteButton">Delete an Existing Link, Long Name, or Category</button><br />
             </fieldset>
     </div>
     <br />
-
-    <div id="edit"> 
+    
+    <div id="edit" style="display:none"> 
     <h1><? echo $BIG_RED_ERROR_MESSAGE ?></h1>
 <h2><a href="admin_help.html" target="_blank">Help!</a></h2>
 
@@ -410,7 +414,7 @@ $(document).ready(function(){
 		</form>
 
   </td>
-  <td valign="top">
+  <td>
 
 <?
 if(!isset($default_entry['URL']) )
@@ -528,14 +532,6 @@ if($current == $highest)
 			<input type="hidden" name="update_id" value="<? echo $default_entry['ID'] ?>" >
 			<br />
                         <input type="submit" value="Update" class="input-button">
-		</form>
-
-		<form name="frm_del_url" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
-			<input type="hidden" name="del_url_id" value="<?  echo $current  ?>" >
-			<?
-				hidden_elements('del_url', "");
-			?>
-			<input type="submit" value="DELETE" class="input-button">
 		</form>
   </div>
     
@@ -695,8 +691,8 @@ if($current == $highest)
     </div>
 </div>
 </div>
-      
-    <div id="add">
+    
+    <div id="add" style="display:none">
     <div class="columns">    
     <div class="row">
         <div class="column1">
@@ -737,9 +733,33 @@ if($current == $highest)
     </div>
 </div>
                 
-    <div id="delete">
+    <div id="delete" style="display:none">
     <div class="columns">
         <div class="row">
+            <div class="column1">
+                <h3 id="red">Delete Link</h3>
+                <form name="frm_del_url" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
+                    <label>URL:
+                        <br />
+                    <select name="del_url_select" class="input-select">
+                        <?
+                        $select_all_urls = "select ID, URL from $URL_TABLE";
+                        $result_all_urls = mysqli_query($db, $select_all_urls);
+                        
+                        while(list($urlindex, $url) = mysqli_fetch_row($result_all_urls)){
+                            echo "<option value=\"$urlindex\"> $url</option>\n";
+                        }
+                        ?>
+                    </select>
+                    </label>
+                    
+			<?
+				hidden_elements('del_url', $current);
+			?>
+                    <br/><br/>
+			<input type="submit" value="Delete" class="input-button">
+		</form>
+            </div>
             <div class="column1">
 	<h3 id="red">Delete Long Name</h3>
 		<form name="frm_del_longname" action="<? echo $_SERVER['PHP_SELF'] ?>" method="post" >
@@ -765,6 +785,8 @@ if($current == $highest)
 		</form>
 
             </div>
+        </div>
+        <div class="row">
             <div class="column1">
 	
         <h3 id="red">Delete Category</h3>
@@ -799,6 +821,7 @@ if($current == $highest)
 </div>
 </div>
     </div>
+    <br />
 
 </body>
 

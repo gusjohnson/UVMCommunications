@@ -60,11 +60,12 @@ label { font-size: 10pt; }
 #red { color: red; background-color: silver; }
 #yellow { color: yellow; background-color: gray; }
 #green { color: green; background-color: silver; }
-#edit {display: none;}
 #add {display: none;}
-#delete {display: none;}
+#edit {display: none;}
+#delete {display: none;} 
+td {width: 33%;}
 
 .columns {display: table; width: 100%; vertical-align: middle;}
 .row {display: table-row; width: 100%;}
-.column1 {display: table-cell; width: 50%; border-style:solid; border-width: 1px;}
+.column1 {display: table-cell; width: 48%; border-style:solid; border-width: 1px; }
 }
