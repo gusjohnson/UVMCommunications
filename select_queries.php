@@ -73,8 +73,8 @@ foreach ($letters as $letter) {
     echo '<h2>' . $letter . '</h2>';
 
 
-    $a_z = "select * from $NAME_CAT_TABLE join LINK_NAMES on LINK_NAMES.nameindex = LINK_NAMECATBRIDGE.nameindex where
-        LINK_NAMECATBRIDGE.catindex = 169 and LINK_NAMES.LongName != '' and LINK_NAMES.LongName like '".$letter."%' order by LINK_NAMES.LongName;";
+    $a_z = "select LongName from $NAME_CAT_TABLE, $NAME_TABLE where LINK_NAMES.nameindex = LINK_NAMECATBRIDGE.nameindex and 
+            LINK_NAMECATBRIDGE.catindex = 169 and LongName != '' and LongName like '".$letter."%' order by LongName;";
 
     $result = mysqli_query($db, $a_z);
 
@@ -83,13 +83,15 @@ foreach ($letters as $letter) {
     }
 
     foreach($row_list as $azcategory) {
-        $url_query = 'select URL from LINK_URLS join LINK_NAMES on LINK_NAMES.URL_ID = LINK_URLS.ID where LINK_NAMES.LongName = "'
-            . $azcategory[3] . '";';
+        $url_query = 'select URL from LINK_URLS, LINK_NAMES where LINK_NAMES.URL_ID = LINK_URLS.ID and LINK_NAMES.LongName = "'
+            . $azcategory[0] . '";';
         $result2 = mysqli_query($db, $url_query);
         $url_array = mysqli_fetch_row($result2);
 
-        echo "<p><a href = " . $url_array[0] . ">" . $azcategory[3] . "</a><br />";
-        echo "" . $url_array[0] . "<br/><br/>";
+        if ($url_array[0] != '') {
+            echo "<p><a href = " . $url_array[0] . ">" . $azcategory[0] . "</a><br />";
+            echo "" . $url_array[0] . "<br/><br/>";
+        }
     }
 
     echo "</p>";
