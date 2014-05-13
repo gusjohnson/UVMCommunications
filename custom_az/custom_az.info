@@ -1,0 +1,5 @@
+name = Custom AZ
+description = Custom UVM A-Z listing
+package = UVM
+files[] = az_list.tpl.php
+core = 7.x

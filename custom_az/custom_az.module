@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @file
+ * Provides access to the UVM A-Z listing
+ */
+
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function custom_az_menu() {
+  $items = array();
+  $items['az'] = array(
+    'page callback' => 'custom_az_display',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function custom_az_theme($existing, $type, $theme, $path) {
+  return array(
+    'custom_az_list' => array(
+      'template' => 'az_list',
+      'variables' => array(
+        'letters' => NULL,
+        'links' => NULL,
+      ),
+    )
+  );
+}
+
+
+/**
+ * Callback for the display of the list.
+ */
+function custom_az_display() {
+  drupal_add_js(drupal_get_path('module', 'custom_az') . '/js/custom_az.js');
+  $variables['letters'] = range('A', 'Z');
+  $variables['links'] = custom_az_db_connect();
+  return theme('custom_az_list', $variables);
+}
+
+
+/**
+ * Required for the az_list.tpl.php template to be used.
+ *
+ */
+function theme_custom_az_list($variables) { }
+
+
+/**
+ * Build the list of links.
+ * @NOTE just returnning a dummy list of links for now, use custom_a
+ */
+function custom_az_build_links() {
+  $links = array(
+    'G' => array(
+      l(t('Google'), 'http://google.com'),
+    ),
+    'N' => array(
+      l(t('New York Times'), 'http://nytimes.com'),
+    )
+  );
+  return $links;
+}
+
+
+/**
+ * This is the connection to the alternate database.
+ *
+ * @NOTE: the following information needs to be in settings.local.php to define
+ * the database:
+ *
+ * $databases['uvm_az']['default'] = array(
+ *   'database' => 'databasename',
+ *   'username' => 'username',
+ *   'password' => 'password',
+ *   'host' => 'dbhost',
+ *   'driver' => 'mysql',
+ * );
+ *
+ * @TODO may want to consider caching this data though it should be cached at
+ * page layer for anonymous users. The original code uses a significant amount
+ * of queries which could be reduced by sorting the output on the php side.
+ */
+ 
+function custom_az_db_connect() {
+
+  // This a modified version of the original query- note that this selects all
+  // rather than by letter. Sort after the query so that you don't need to worry
+  // about multiple requets.
+  // It seems like you could use this and the second original query with an
+  // GROUP BY to do this in one complete query
+  
+  db_set_active('uvm');
+
+  // Get the categories
+  $results = db_query("SELECT LongName, URL FROM LINK_NAMECATBRIDGE, LINK_NAMES, LINK_URLS
+    WHERE 
+		LINK_NAMES.nameindex = LINK_NAMECATBRIDGE.nameindex
+    AND
+		LINK_NAMES.URL_ID = LINK_URLS.ID
+	AND
+		LINK_NAMECATBRIDGE.catindex = 169
+	AND
+		LongName != ''
+	ORDER BY
+		LongName;"
+  );
+
+  // Now get the individual links.
+  // @TODO .....
+
+  $links = array();
+
+  foreach ($results as $result) {
+    $letter = drupal_strtoupper(substr($result->LongName,0,1));
+    $links[$letter][] = l($result->LongName, $result->URL);
+  }
+
+
+  // Make the Drupal database active again.
+  db_set_active();
+
+  return $links;
+}
+
