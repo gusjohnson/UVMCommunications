@@ -6,9 +6,20 @@
 (function ($) {
 
   $(document).ready(function() {
-    $("ul#azlist > li").click(function() {
+      var pathname = location.pathname;
+      if (pathname == "/a_to_z") {
+	$("#ADiv").show();
+      }
+      else {
+      var ID = window.location.hash.substring(1);
+      var dropDown = "#" + ID + "Div";
+      $(dropDown).show();
+      }
+      
+      $("ul#azlist > li").click(function() {
       var idDiv = "#" + this.id + "Div";
-      $(idDiv).slideToggle();
+      $('.hidden').hide();
+      $(idDiv).show();
       $('body').scrollTo(idDiv);
     });
   });

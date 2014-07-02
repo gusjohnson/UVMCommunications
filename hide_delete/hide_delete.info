@@ -1,0 +1,4 @@
+name = hide_delete
+description = hides the "delete?" checkbox when an authenticated user is adding a A-Z link
+package = UVM
+core = 7.x
